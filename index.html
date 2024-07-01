@@ -1,0 +1,80 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .chat-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-width: 500px;
+            margin: auto;
+            overflow-y: scroll;
+            height: 300px;
+        }
+        .user-message, .bot-message {
+            margin-bottom: 10px;
+        }
+        .user-message {
+            text-align: right;
+            color: blue;
+        }
+        .bot-message {
+            text-align: left;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library Chatbot</h1>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="bot-message">Welcome to Library Chatbot. Type "exit" to quit.</div>
+    </div>
+
+    <form id="chatForm">
+        <input type="text" id="userMessage" name="user_message" placeholder="Type your message here..." style="width: 400px;">
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        document.getElementById('chatForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var userMessage = document.getElementById('userMessage').value;
+            var chatContainer = document.getElementById('chatContainer');
+
+            var userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('user-message');
+            userMessageElement.textContent = userMessage;
+            chatContainer.appendChild(userMessageElement);
+
+            document.getElementById('userMessage').value = '';
+
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'user_message=' + encodeURIComponent(userMessage)
+            })
+            .then(response => response.json())
+            .then(data => {
+                var botMessageElement = document.createElement('div');
+                botMessageElement.classList.add('bot-message');
+                botMessageElement.textContent = data.bot_response;
+                chatContainer.appendChild(botMessageElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
